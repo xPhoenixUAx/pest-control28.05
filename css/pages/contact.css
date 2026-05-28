@@ -1,0 +1,59 @@
+.contact-hero {
+  --hero-image: url("../../img/common/homeowner-phone-consultation.webp");
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(320px, 0.9fr);
+  gap: 48px;
+}
+
+.contact-methods {
+  display: grid;
+  gap: 16px;
+}
+
+.contact-method {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--mist);
+}
+
+.form-ui {
+  display: grid;
+  gap: 16px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--mist);
+}
+
+.form-ui label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.form-ui input,
+.form-ui select,
+.form-ui textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 13px;
+  color: var(--ink);
+  background: var(--white);
+}
+
+.form-ui textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+@media (max-width: 860px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}

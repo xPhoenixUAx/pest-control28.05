@@ -1,0 +1,19 @@
+.services-hero {
+  --hero-image: url("../../img/services/general-pest-control-service.webp");
+}
+
+.category-anchor {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.category-anchor a {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--mist);
+  color: var(--moss);
+  font-weight: 700;
+}

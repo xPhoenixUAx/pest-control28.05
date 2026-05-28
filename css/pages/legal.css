@@ -1,0 +1,22 @@
+.legal-page {
+  padding: 142px 0 84px;
+}
+
+.legal-shell {
+  display: grid;
+  gap: 32px;
+  padding: 38px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--mist);
+}
+
+.legal-shell section {
+  display: grid;
+  gap: 10px;
+}
+
+.legal-shell p,
+.legal-shell li {
+  color: var(--muted);
+}

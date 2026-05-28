@@ -1,0 +1,14 @@
+.about-hero {
+  --hero-image: url("../../img/common/homeowner-phone-consultation.webp");
+}
+
+.standards-list {
+  columns: 2;
+  gap: 34px;
+}
+
+@media (max-width: 640px) {
+  .standards-list {
+    columns: 1;
+  }
+}

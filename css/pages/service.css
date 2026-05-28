@@ -1,0 +1,53 @@
+.service-hero {
+  min-height: 620px;
+}
+
+.detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(280px, 0.5fr);
+  gap: 54px;
+}
+
+.sticky-aside {
+  position: sticky;
+  top: 110px;
+}
+
+.situation-list {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.situation-list li {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.related-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.related-services a {
+  padding: 10px 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--moss);
+  background: var(--mist);
+  font-weight: 700;
+}
+
+@media (max-width: 860px) {
+  .detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sticky-aside {
+    position: static;
+  }
+}
