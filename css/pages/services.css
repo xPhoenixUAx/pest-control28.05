@@ -1,5 +1,5 @@
 .services-hero {
-  --hero-image: url("../../img/services/general-pest-control-service.webp");
+  --hero-image: url("../img/services/general-pest-control-service.webp");
 }
 
 .category-anchor {
@@ -10,10 +10,24 @@
 }
 
 .category-anchor a {
-  padding: 8px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--mist);
-  color: var(--moss);
-  font-weight: 700;
+  min-height: 42px;
+  padding: 11px 16px;
+  border: 1px solid rgba(45, 141, 222, 0.24);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--blue-dark);
+  box-shadow: 0 8px 22px rgba(15, 37, 54, 0.05);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+#household,
+#biting {
+  background: var(--surface);
+}
+
+#property,
+#outdoor {
+  background: var(--white);
 }

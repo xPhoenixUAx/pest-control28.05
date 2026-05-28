@@ -6,6 +6,7 @@
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(280px, 0.5fr);
   gap: 54px;
+  align-items: start;
 }
 
 .sticky-aside {
@@ -22,9 +23,23 @@
 }
 
 .situation-list li {
-  padding: 18px 0;
-  border-bottom: 1px solid var(--line);
+  position: relative;
+  padding: 18px 18px 18px 46px;
+  border: 0;
+  border-radius: 6px;
   color: var(--muted);
+  background: var(--surface);
+}
+
+.situation-list li::before {
+  position: absolute;
+  left: 18px;
+  top: 21px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--blue);
+  content: "";
 }
 
 .related-services {
@@ -34,12 +49,15 @@
 }
 
 .related-services a {
-  padding: 10px 13px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  color: var(--moss);
-  background: var(--mist);
-  font-weight: 700;
+  padding: 11px 15px;
+  border: 1px solid rgba(45, 141, 222, 0.24);
+  border-radius: 999px;
+  color: var(--blue-dark);
+  background: var(--white);
+  box-shadow: 0 8px 22px rgba(15, 37, 54, 0.05);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 @media (max-width: 860px) {

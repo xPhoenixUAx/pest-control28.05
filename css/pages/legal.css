@@ -1,14 +1,16 @@
 .legal-page {
-  padding: 142px 0 84px;
+  padding: 150px 0 92px;
+  background: var(--surface);
 }
 
 .legal-shell {
   display: grid;
   gap: 32px;
-  padding: 38px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--mist);
+  padding: clamp(28px, 5vw, 46px);
+  border: 0;
+  border-radius: 8px;
+  background: var(--white);
+  box-shadow: 0 16px 42px rgba(15, 37, 54, 0.08);
 }
 
 .legal-shell section {

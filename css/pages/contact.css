@@ -1,11 +1,12 @@
 .contact-hero {
-  --hero-image: url("../../img/common/homeowner-phone-consultation.webp");
+  --hero-image: url("../img/common/homeowner-phone-consultation.webp");
 }
 
 .contact-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.72fr) minmax(320px, 0.9fr);
   gap: 48px;
+  align-items: start;
 }
 
 .contact-methods {
@@ -14,19 +15,32 @@
 }
 
 .contact-method {
-  padding: 22px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--mist);
+  padding: 24px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--white);
+  box-shadow: 0 12px 34px rgba(15, 37, 54, 0.06);
+}
+
+.contact-method h3 {
+  font-size: 21px;
+}
+
+.contact-method p:not(.eyebrow) {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 .form-ui {
   display: grid;
   gap: 16px;
-  padding: 28px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--mist);
+  padding: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: 0 14px 38px rgba(15, 37, 54, 0.08);
 }
 
 .form-ui label {
@@ -40,9 +54,9 @@
 .form-ui select,
 .form-ui textarea {
   width: 100%;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 12px 13px;
+  border: 1px solid rgba(17, 24, 32, 0.1);
+  border-radius: 6px;
+  padding: 13px 14px;
   color: var(--ink);
   background: var(--white);
 }
