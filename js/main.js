@@ -6,7 +6,8 @@
     bug: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3 3 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a6 6 0 0 1 12 0v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.6-3.8 3.53-4"/><path d="M17.47 9C19.4 8.8 21 7.1 21 5"/><path d="M18 13h4"/><path d="M21 21c0-2.1-1.6-3.8-3.53-4"/></svg>',
     phone: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.83 16.17a1 1 0 0 0 1.06.23l2.56-1.02a1 1 0 0 1 1.17.34l1.26 1.73a1 1 0 0 1-.1 1.3C18.76 19.77 17.18 21 15 21 8.37 21 3 15.63 3 9c0-2.18 1.23-3.76 2.25-4.78a1 1 0 0 1 1.3-.1l1.73 1.26a1 1 0 0 1 .34 1.17L7.6 9.11a1 1 0 0 0 .23 1.06z"/></svg>',
     clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
-    search: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="7"/></svg>'
+    search: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="7"/></svg>',
+    chevron: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
   };
 
   function text(selector, value) {
@@ -78,11 +79,75 @@
     });
   }
 
+  function serviceLinksMarkup(includeAllServices) {
+    var links = services.map(function (service) {
+      return '<a href="' + service.href + '">' + service.title + "</a>";
+    });
+    if (includeAllServices) links.unshift('<a href="./services.html">All Services</a>');
+    return links.join("");
+  }
+
+  function buildServicesNavigation() {
+    var dropdownId = "services-nav-menu";
+    document.querySelectorAll(".desktop-nav").forEach(function (nav) {
+      var servicesLink = Array.prototype.find.call(nav.querySelectorAll('a[href="./services.html"]'), function (link) {
+        return link.textContent.trim().toLowerCase() === "services";
+      });
+      if (!servicesLink || nav.querySelector(".services-dropdown")) return;
+
+      var dropdown = document.createElement("div");
+      dropdown.className = "services-dropdown";
+      dropdown.innerHTML = '<button class="services-dropdown-toggle" type="button" aria-expanded="false" aria-controls="' + dropdownId + '">' +
+        '<span>Services</span>' + icons.chevron +
+        '</button>' +
+        '<div class="services-dropdown-menu" id="' + dropdownId + '" aria-label="Service pages">' + serviceLinksMarkup(true) + "</div>";
+      servicesLink.replaceWith(dropdown);
+
+      var toggle = dropdown.querySelector("button");
+      toggle.addEventListener("click", function () {
+        var isOpen = dropdown.classList.toggle("is-open");
+        toggle.setAttribute("aria-expanded", String(isOpen));
+      });
+      dropdown.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          dropdown.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+          toggle.focus();
+        }
+      });
+    });
+
+    document.querySelectorAll(".mobile-menu nav").forEach(function (nav) {
+      var servicesLink = Array.prototype.find.call(nav.querySelectorAll('a[href="./services.html"]'), function (link) {
+        return link.textContent.trim().toLowerCase() === "services";
+      });
+      if (!servicesLink || nav.querySelector(".mobile-services-dropdown")) return;
+
+      var dropdown = document.createElement("details");
+      dropdown.className = "mobile-services-dropdown";
+      dropdown.innerHTML = '<summary>Services' + icons.chevron + '</summary>' +
+        '<div class="mobile-services-links">' + serviceLinksMarkup(true) + "</div>";
+      servicesLink.replaceWith(dropdown);
+    });
+
+    document.addEventListener("click", function (event) {
+      document.querySelectorAll(".services-dropdown.is-open").forEach(function (dropdown) {
+        if (dropdown.contains(event.target)) return;
+        dropdown.classList.remove("is-open");
+        var toggle = dropdown.querySelector("button");
+        if (toggle) toggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+
   function currentPageState() {
     var current = location.pathname.split("/").pop() || "index.html";
     document.querySelectorAll("a[href]").forEach(function (link) {
       var href = link.getAttribute("href").replace("./", "");
       if (href === current) link.setAttribute("aria-current", "page");
+    });
+    document.querySelectorAll(".services-dropdown, .mobile-services-dropdown").forEach(function (dropdown) {
+      if (dropdown.querySelector('[aria-current="page"]')) dropdown.classList.add("has-active");
     });
   }
 
@@ -179,6 +244,7 @@
 
   buildHeaderUtilities();
   hydrateConfig();
+  buildServicesNavigation();
   buildFooterServices();
   currentPageState();
   headerBehavior();
