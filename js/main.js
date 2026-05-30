@@ -25,7 +25,40 @@
     });
   }
 
+  function replaceCompanyName() {
+    var defaultName = "PestLine Connect";
+    if (!config.companyName || config.companyName === defaultName) return;
+
+    function swap(value) {
+      return value && value.indexOf(defaultName) > -1 ? value.split(defaultName).join(config.companyName) : value;
+    }
+
+    document.title = swap(document.title);
+    document.querySelectorAll('meta[name="description"]').forEach(function (meta) {
+      meta.setAttribute("content", swap(meta.getAttribute("content")));
+    });
+    document.querySelectorAll("[aria-label]").forEach(function (node) {
+      node.setAttribute("aria-label", swap(node.getAttribute("aria-label")));
+    });
+
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (node) {
+        var parent = node.parentElement;
+        if (!parent || ["SCRIPT", "STYLE", "TEXTAREA"].indexOf(parent.tagName) > -1) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return node.nodeValue.indexOf(defaultName) > -1 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+      }
+    });
+    var textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+    textNodes.forEach(function (node) {
+      node.nodeValue = swap(node.nodeValue);
+    });
+  }
+
   function hydrateConfig() {
+    replaceCompanyName();
     text("[data-company-name]", config.companyName);
     text("[data-company-id]", config.companyId);
     text("[data-company-address]", [config.addressLine1, config.addressLine2].filter(Boolean).join(" - "));
@@ -260,12 +293,14 @@
   }
 
   function createSearchIndex() {
+    var defaultName = "PestLine Connect";
+    var companyName = config.companyName || defaultName;
     var pages = [
       {
         title: "Home",
         href: "./index.html",
         type: "Overview",
-        text: "Fast access to local pest control options. PestLine Connect helps homeowners connect with independent local providers for residential pest concerns, compare local options, verify licensing and insurance, and request written service terms."
+        text: "Fast access to local pest control options. " + companyName + " helps homeowners connect with independent local providers for residential pest concerns, compare local options, verify licensing and insurance, and request written service terms."
       },
       {
         title: "Services",
@@ -277,7 +312,7 @@
         title: "About",
         href: "./about.html",
         type: "Platform",
-        text: "Learn how PestLine Connect helps homeowners begin the search for independent local pest control providers, route inquiries, ask better questions, and verify credentials before hiring."
+        text: "Learn how " + companyName + " helps homeowners begin the search for independent local pest control providers, route inquiries, ask better questions, and verify credentials before hiring."
       },
       {
         title: "Contact",
