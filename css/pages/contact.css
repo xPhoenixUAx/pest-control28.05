@@ -71,3 +71,107 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 640px) {
+  .contact-hero {
+    min-height: auto;
+    padding: 118px 0 48px;
+  }
+
+  .contact-hero .hero-content {
+    gap: 24px;
+    text-align: center;
+  }
+
+  .contact-hero h1 {
+    margin-inline: auto;
+    font-size: 34px;
+  }
+
+  .contact-hero .lead {
+    margin-inline: auto;
+    font-size: 14px;
+  }
+
+  .contact-hero .hero-actions {
+    align-items: center;
+    margin-top: 22px;
+  }
+
+  .contact-hero .trust-panel {
+    width: min(100%, 360px);
+    margin-inline: auto;
+    padding: 18px;
+    text-align: left;
+  }
+
+  .contact-grid {
+    width: min(100%, 420px);
+    margin-inline: auto;
+    gap: 22px;
+  }
+
+  .contact-methods {
+    gap: 12px;
+  }
+
+  .contact-method {
+    padding: 18px;
+    text-align: center;
+  }
+
+  .contact-method .eyebrow {
+    margin-bottom: 6px;
+  }
+
+  .contact-method h3 {
+    font-size: 18px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-method p:not(.eyebrow) {
+    margin-top: 6px;
+    font-size: 12px;
+  }
+
+  .form-ui {
+    gap: 12px;
+    padding: 18px;
+    text-align: left;
+  }
+
+  .form-ui h2 {
+    text-align: center;
+    font-size: 26px;
+  }
+
+  .form-ui label {
+    gap: 5px;
+    font-size: 13px;
+  }
+
+  .form-ui input,
+  .form-ui select,
+  .form-ui textarea {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .form-ui textarea {
+    min-height: 104px;
+  }
+
+  .form-ui .cta {
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 14px;
+  }
+
+  .form-ui p {
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+}

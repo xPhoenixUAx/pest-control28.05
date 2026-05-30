@@ -7,6 +7,7 @@
     phone: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.83 16.17a1 1 0 0 0 1.06.23l2.56-1.02a1 1 0 0 1 1.17.34l1.26 1.73a1 1 0 0 1-.1 1.3C18.76 19.77 17.18 21 15 21 8.37 21 3 15.63 3 9c0-2.18 1.23-3.76 2.25-4.78a1 1 0 0 1 1.3-.1l1.73 1.26a1 1 0 0 1 .34 1.17L7.6 9.11a1 1 0 0 0 .23 1.06z"/></svg>',
     clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
     search: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="7"/></svg>',
+    menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>',
     chevron: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
   };
 
@@ -64,8 +65,24 @@
       if (navRow && !navRow.querySelector(".header-socials")) {
         var socials = document.createElement("div");
         socials.className = "header-socials";
-        socials.innerHTML = '<a href="./services.html" aria-label="Search services">' + icons.search + '</a>';
+        socials.innerHTML = '<button class="header-search-trigger" type="button" data-search-open aria-label="Search site">' + icons.search + '</button>';
         navRow.appendChild(socials);
+      }
+
+      var actions = header.querySelector(".header-actions");
+      if (actions && !actions.querySelector("[data-search-open]")) {
+        var mobileSearch = document.createElement("button");
+        mobileSearch.className = "icon-button mobile-search-trigger";
+        mobileSearch.type = "button";
+        mobileSearch.setAttribute("data-search-open", "");
+        mobileSearch.setAttribute("aria-label", "Search site");
+        mobileSearch.innerHTML = icons.search;
+        actions.insertBefore(mobileSearch, actions.querySelector(".menu-toggle"));
+      }
+
+      var menuToggle = header.querySelector(".menu-toggle");
+      if (menuToggle && !menuToggle.querySelector("svg")) {
+        menuToggle.innerHTML = icons.menu;
       }
     });
   }
@@ -242,6 +259,295 @@
     next.addEventListener("click", function () { step(1); });
   }
 
+  function createSearchIndex() {
+    var pages = [
+      {
+        title: "Home",
+        href: "./index.html",
+        type: "Overview",
+        text: "Fast access to local pest control options. PestLine Connect helps homeowners connect with independent local providers for residential pest concerns, compare local options, verify licensing and insurance, and request written service terms."
+      },
+      {
+        title: "Services",
+        href: "./services.html",
+        type: "Service library",
+        text: "Explore pest control service categories, household insects, property risk, biting pests, outdoor pressure, inspections, preparation, documentation, follow-up terms, and local provider availability."
+      },
+      {
+        title: "About",
+        href: "./about.html",
+        type: "Platform",
+        text: "Learn how PestLine Connect helps homeowners begin the search for independent local pest control providers, route inquiries, ask better questions, and verify credentials before hiring."
+      },
+      {
+        title: "Contact",
+        href: "./contact.html",
+        type: "Contact",
+        text: "Request a pest control provider connection by phone, email, contact form, ZIP code, pest concern, provider availability, estimates, and service details."
+      },
+      {
+        title: "Privacy Policy",
+        href: "./privacy.html",
+        type: "Legal",
+        text: "Privacy policy, information collection, contact forms, provider connection requests, cookies, tracking technologies, data security, privacy rights, and independent providers."
+      },
+      {
+        title: "Terms of Use",
+        href: "./terms.html",
+        type: "Legal",
+        text: "Terms of use, independent local providers, service estimates, homeowner responsibility, provider licensing, insurance, pricing, cancellation terms, and website rules."
+      },
+      {
+        title: "Cookie Policy",
+        href: "./cookie.html",
+        type: "Legal",
+        text: "Cookie policy, analytics, tracking technologies, website performance, browser settings, and user choices."
+      }
+    ];
+
+    services.forEach(function (service) {
+      pages.push({
+        title: service.title,
+        href: service.href,
+        type: service.group,
+        text: [
+          service.summary,
+          service.signs && service.signs.join(" "),
+          service.questions && service.questions.join(" ")
+        ].filter(Boolean).join(" ")
+      });
+    });
+
+    return pages.map(function (page) {
+      page.searchText = [page.title, page.type, page.text].join(" ").toLowerCase();
+      return page;
+    });
+  }
+
+  function siteSearch() {
+    var searchIndex = createSearchIndex();
+    var modal = document.createElement("div");
+    modal.className = "site-search";
+    modal.setAttribute("data-site-search", "");
+    modal.setAttribute("aria-hidden", "true");
+    modal.innerHTML = '<div class="site-search-backdrop" data-search-close></div>' +
+      '<section class="site-search-panel" role="dialog" aria-modal="true" aria-labelledby="site-search-title">' +
+      '<div class="site-search-head">' +
+      '<div><p>Site search</p><h2 id="site-search-title">What are you looking for?</h2></div>' +
+      '<button class="site-search-close" type="button" data-search-close aria-label="Close search">&times;</button>' +
+      '</div>' +
+      '<label class="site-search-field"><span>' + icons.search + '</span><input type="search" data-search-input placeholder="Search pests, services, contact info..." autocomplete="off"></label>' +
+      '<div class="site-search-results" data-search-results></div>' +
+      '</section>';
+    document.body.appendChild(modal);
+
+    var input = modal.querySelector("[data-search-input]");
+    var results = modal.querySelector("[data-search-results]");
+    var lastFocus = null;
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, function (char) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char];
+      });
+    }
+
+    function tokenize(value) {
+      return value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    }
+
+    function getSnippet(page, terms) {
+      var text = page.text || "";
+      var lower = text.toLowerCase();
+      var index = -1;
+      terms.some(function (term) {
+        index = lower.indexOf(term);
+        return index > -1;
+      });
+      if (index < 0) return text.slice(0, 150);
+      var start = Math.max(0, index - 55);
+      var snippet = text.slice(start, start + 165);
+      return (start > 0 ? "... " : "") + snippet;
+    }
+
+    function scorePage(page, terms) {
+      return terms.reduce(function (score, term) {
+        if (page.title.toLowerCase().indexOf(term) > -1) score += 8;
+        if (page.type.toLowerCase().indexOf(term) > -1) score += 4;
+        if (page.searchText.indexOf(term) > -1) score += 2;
+        return score;
+      }, 0);
+    }
+
+    function renderResults(query) {
+      var terms = tokenize(query);
+      var matches = terms.length ? searchIndex
+        .map(function (page) {
+          return { page: page, score: scorePage(page, terms) };
+        })
+        .filter(function (match) { return match.score > 0; })
+        .sort(function (a, b) { return b.score - a.score || a.page.title.localeCompare(b.page.title); })
+        .slice(0, 8)
+        .map(function (match) { return match.page; }) : searchIndex.slice(0, 6);
+
+      if (!matches.length) {
+        results.innerHTML = '<p class="site-search-empty">No results found. Try a pest name like ants, rodents, termites, or mosquitoes.</p>';
+        return;
+      }
+
+      results.innerHTML = matches.map(function (page) {
+        return '<a class="site-search-result" href="' + page.href + '">' +
+          '<span>' + escapeHtml(page.type) + '</span>' +
+          '<strong>' + escapeHtml(page.title) + '</strong>' +
+          '<em>' + escapeHtml(getSnippet(page, terms)) + '</em>' +
+          '</a>';
+      }).join("");
+    }
+
+    function openSearch() {
+      lastFocus = document.activeElement;
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("search-open");
+      input.value = "";
+      renderResults("");
+      window.setTimeout(function () { input.focus(); }, 40);
+    }
+
+    function closeSearch() {
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("search-open");
+      if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
+    }
+
+    document.querySelectorAll("[data-search-open]").forEach(function (button) {
+      button.addEventListener("click", openSearch);
+    });
+    modal.querySelectorAll("[data-search-close]").forEach(function (button) {
+      button.addEventListener("click", closeSearch);
+    });
+    input.addEventListener("input", function () { renderResults(input.value); });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && modal.classList.contains("is-open")) closeSearch();
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        openSearch();
+      }
+    });
+  }
+
+  function cookieBanner() {
+    var storageKey = "pestline-cookie-consent";
+
+    function getConsent() {
+      try {
+        return window.localStorage.getItem(storageKey);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function setConsent(value) {
+      try {
+        window.localStorage.setItem(storageKey, value);
+      } catch (error) {
+        document.cookie = storageKey + "=" + encodeURIComponent(value) + "; path=/; max-age=31536000; SameSite=Lax";
+      }
+    }
+
+    if (getConsent()) return;
+
+    var banner = document.createElement("section");
+    banner.className = "cookie-banner";
+    banner.setAttribute("role", "dialog");
+    banner.setAttribute("aria-live", "polite");
+    banner.setAttribute("aria-label", "Cookie notice");
+    banner.innerHTML = '<div class="cookie-banner-copy">' +
+      '<strong>Cookie notice</strong>' +
+      '<p>We use essential cookies to run this site and may use analytics or referral cookies to understand visits and improve provider connection workflows.</p>' +
+      '<a href="./cookie.html">Cookie Policy</a>' +
+      '</div>' +
+      '<div class="cookie-banner-actions">' +
+      '<button class="cookie-secondary" type="button" data-cookie-choice="declined">Decline</button>' +
+      '<button class="cookie-primary" type="button" data-cookie-choice="accepted">Accept</button>' +
+      '</div>';
+    document.body.appendChild(banner);
+
+    window.setTimeout(function () {
+      banner.classList.add("is-visible");
+    }, 120);
+
+    banner.querySelectorAll("[data-cookie-choice]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        setConsent(button.getAttribute("data-cookie-choice"));
+        banner.classList.remove("is-visible");
+        window.setTimeout(function () {
+          banner.remove();
+        }, 220);
+      });
+    });
+  }
+
+  function contactFormConfirmation() {
+    var forms = document.querySelectorAll(".form-ui");
+    if (!forms.length) return;
+
+    var modal = document.createElement("div");
+    modal.className = "form-confirmation";
+    modal.setAttribute("aria-hidden", "true");
+    modal.innerHTML = '<div class="form-confirmation-backdrop" data-form-confirmation-close></div>' +
+      '<section class="form-confirmation-panel" role="dialog" aria-modal="true" aria-labelledby="form-confirmation-title">' +
+      '<button class="form-confirmation-close" type="button" data-form-confirmation-close aria-label="Close confirmation">&times;</button>' +
+      '<span class="form-confirmation-icon" aria-hidden="true"></span>' +
+      '<h2 id="form-confirmation-title">Request received</h2>' +
+      '<p>Thank you. Your inquiry details were submitted, and a provider connection request can now be reviewed. Availability and service terms may vary by local provider.</p>' +
+      '<button class="cta form-confirmation-action" type="button" data-form-confirmation-close>Done</button>' +
+      '</section>';
+    document.body.appendChild(modal);
+
+    var lastFocus = null;
+
+    function openConfirmation() {
+      lastFocus = document.activeElement;
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("confirmation-open");
+      var closeButton = modal.querySelector("[data-form-confirmation-close]");
+      if (closeButton) closeButton.focus();
+    }
+
+    function closeConfirmation() {
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("confirmation-open");
+      if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
+    }
+
+    forms.forEach(function (form) {
+      form.querySelectorAll("input, select, textarea").forEach(function (field) {
+        if (field.name && field.type !== "hidden") field.required = true;
+      });
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        openConfirmation();
+        form.reset();
+      });
+    });
+
+    modal.querySelectorAll("[data-form-confirmation-close]").forEach(function (button) {
+      button.addEventListener("click", closeConfirmation);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && modal.classList.contains("is-open")) closeConfirmation();
+    });
+  }
+
   buildHeaderUtilities();
   hydrateConfig();
   buildServicesNavigation();
@@ -252,4 +558,7 @@
   faqAccordions();
   revealOnScroll();
   serviceCarousel();
+  siteSearch();
+  cookieBanner();
+  contactFormConfirmation();
 }());
